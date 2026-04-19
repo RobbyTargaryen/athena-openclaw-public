@@ -1,0 +1,55 @@
+{
+  "gateway": {
+    "port": 18789,
+    "bind": "loopback",
+    "auth": {
+      "mode": "none" 
+      // Note: Device pairing mode is used instead of static tokens to prevent token leakage.
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        // PRIMARY: Cost-effective, fast local execution for ambient tasks.
+        "primary": "local/fast-inference-8b",
+        
+        // FALLBACK CHAIN: Ordered strictly by cost and capability. 
+        // Cloud models are only reached if all local nodes are unresponsive or if explicitly escalated by the routing engine.
+        "fallbacks": [
+          "local-node-1/fast-inference-8b",
+          "local-node-2/fast-inference-8b",
+          "local-node-1/specialized-coder-14b",
+          "local-node-2/reasoning-7b",
+          "cloud-provider/free-tier-lite",
+          "cloud-provider/premium-reasoning-model"
+        ]
+      },
+      "sandbox": {
+        "mode": "off"
+        // Caution: Execution occurs on the host. Implement strict role-based access controls and use designated security nodes for untrusted tasks.
+      },
+      "heartbeat": {
+        // Continuous, lightweight operational checks utilizing local models to avoid cloud spend.
+        "enabled": true,
+        "intervalMinutes": 5,
+        "mode": "isolated"
+      }
+    }
+  },
+  "models": {
+    "providers": {
+      "local-node-1": {
+        "type": "ollama",
+        "url": "http://node-1.internal:11434"
+      },
+      "local-node-2": {
+        "type": "ollama",
+        "url": "http://node-2.internal:11434"
+      },
+      "cloud-provider": {
+        "type": "premium-api",
+        "url": "https://api.cloudprovider.com"
+      }
+    }
+  }
+}

@@ -1,29 +1,30 @@
-# Athena / OpenClaw
+# Athena / OpenClaw: Local-First Orchestration
 
-**Athena** is a local-first, autonomous orchestration system built on top of the OpenClaw framework. It acts as the "executive brain" for a distributed fleet of compute nodes, managing intelligence, routing, and system operations securely and efficiently.
+**Athena** is an executive orchestration layer built on the OpenClaw framework. It manages a distributed fleet of compute nodes, utilizing a "local-first" execution strategy. By employing an **adaptive routing engine**, the system dynamically categorizes intents, evaluates node health, and delegates workloads securely without defaulting to expensive cloud APIs.
 
-## Core Architecture
+## How It Works: The Execution Pipeline
 
-Athena operates on a **Local-First Architecture**. This means the system prioritizes utilizing self-hosted, local Large Language Models (LLMs) and tools before ever falling back to paid cloud APIs. This ensures data privacy, reduces operational costs to near zero, and maintains high availability even when disconnected from external networks.
+Athena processes tasks via a strict pipeline that enforces privacy, minimizes latency, and reduces cost.
 
-## Capability-Validation-Tree (CVT) Routing
+1. **Input Reception:** Intercepts prompt via interactive console, webhook, or scheduled background cron.
+2. **Intent Classification:** The adaptive routing engine analyzes the prompt to determine task type (e.g., coding, system operations, strategic planning) and semantic complexity.
+3. **Execution Routing:** Based on classification and live node health metrics, the system selects the optimal agent and model combination.
+4. **Execution:** The delegated node processes the task using local tools and models.
+5. **Feedback Loop:** Execution metrics (latency, success rate) are logged locally to inform future routing decisions and update predictive node reliability scores.
 
-At the heart of Athena is the **CVT (Capability-Validation-Tree) Routing Engine**. 
+## Local-First vs. Cloud Fallback Logic
 
-Instead of relying on a single, massive model for all tasks, the CVT engine deterministically analyzes every incoming prompt based on semantic complexity, task type, and cost priority. It then routes the task to the most appropriate agent and model across the fleet.
+The architecture is explicitly designed to maximize the utilization of self-hosted, local Large Language Models (LLMs). 
 
-- **Low Complexity (Ops):** Routed to fast, lightweight local models (e.g., `qwen3:8b`).
-- **Medium Complexity (Coding/Optimization):** Routed to specialized local models (e.g., `qwen2.5-coder:14b` or `deepseek-r1:7b`).
-- **High Complexity (Strategic Planning):** Escalated to premium cloud models (e.g., `claude-opus-4-6`) only when absolute necessary and authorized.
+- **Tier 1 (Local - Zero Cost):** Routine operations, basic scripting, and system status checks are routed to fast, localized models (e.g., `8b` parameter class).
+- **Tier 2 (Local Specialists - Zero Cost):** Specialized tasks (like code generation or vulnerability auditing) are routed to local specialist models (e.g., `14b-coder` class) residing on high-compute nodes.
+- **Tier 3 (Cloud Fallback - Premium):** Only when semantic complexity exceeds local thresholds, or if a high-priority system outage is detected, does the system escalate the task to premium cloud models for deep reasoning.
 
-## Multi-Node Execution
+## Real-World Example Flow
 
-Athena is designed to manage a distributed fleet of nodes, seamlessly distributing tasks across:
-- **GPU Inference Nodes** for fast model execution.
-- **CPU Compute Nodes** for general tasks and embeddings.
-- **Dedicated Security Nodes** (e.g., Kali Linux VMs) for isolated vulnerability scanning and network reconnaissance.
-- **KV Memory Nodes** for high-speed state management and quorum consensus.
+**Scenario:** An operator requests a fleet diagnostic.
+**Prompt:** *"Run a health check across the infrastructure and diagnose latency spikes."*
 
-## Why This System Matters
-
-Athena represents the shift from a reactive "chatbot" to a proactive, **Goal-Driven Intelligence Platform**. By combining local-first execution, intelligent CVT routing, and multi-node orchestration, Athena provides a highly scalable, private, and cost-effective foundation for ambient computing and autonomous system management.
+1. **Classification:** The routing engine detects keywords (`health check`, `diagnose`, `latency`) and flags the task as `Medium Complexity / Operations`.
+2. **Routing Decision:** The system bypasses standard ambient models and assigns the task to a local reasoning specialist model to interpret the diagnostic output.
+3. **Execution:** The delegated agent executes the necessary SSH probes, captures the output, and synthesizes a structured health report—all without sending sensitive infrastructure data to an external API.
